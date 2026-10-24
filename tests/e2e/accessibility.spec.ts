@@ -47,6 +47,38 @@ test.describe('accessibility (WCAG 2.2 AA)', () => {
     expect(results.violations).toEqual([]);
   });
 
+  test('a filtered result set is axe-clean', async ({ page }) => {
+    // Covers the state a reviewer actually shares: chips, "clear filters", a reduced list
+    // and a result count that differs from the total.
+    await gotoSettled(page, '/?q=ui&sort=stars');
+    await expect(page.locator('ul[aria-label="Repositories"] > li').first()).toBeVisible();
+    const results = await analyse(page);
+    expect(results.violations).toEqual([]);
+  });
+
+  test('the empty state is axe-clean', async ({ page }) => {
+    await setScenario('empty');
+    await gotoSettled(page);
+    await expect(page.getByRole('heading', { name: /No eligible public repositories/ })).toBeVisible();
+    const results = await analyse(page);
+    expect(results.violations).toEqual([]);
+  });
+
+  test('the rate-limited state is axe-clean', async ({ page }) => {
+    await setScenario('rate-limited');
+    await gotoSettled(page);
+    await expect(page.getByRole('heading', { name: /rate limit/i })).toBeVisible();
+    const results = await analyse(page);
+    expect(results.violations).toEqual([]);
+  });
+
+  test('the zero-results state is axe-clean', async ({ page }) => {
+    await gotoSettled(page, '/?q=zzzz-not-a-repo');
+    await expect(page.getByRole('heading', { name: /No repositories match/ })).toBeVisible();
+    const results = await analyse(page);
+    expect(results.violations).toEqual([]);
+  });
+
   test('page has one h1, landmark structure and a working skip link', async ({ page }) => {
     await gotoSettled(page);
     expect(await page.getByRole('heading', { level: 1 }).count()).toBe(1);

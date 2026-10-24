@@ -50,7 +50,7 @@ for repositories without one.
 | R9 | Unauthenticated by default; token server-only and optional | `src/lib/config.ts` + `client.ts` | `scripts/check-boundaries.mjs` secret + server-import rules; README |
 | R10 | Distinctive portfolio UI, hero + CTAs, GitHub link, accurate stats, responsive nav, themes, restrained motion | `src/components/**`, `src/app/globals.css` | Screenshots; `tests/e2e/{home,theme}.spec.ts` (26 tests incl. mobile-chromium project) |
 | R11 | SEO: titles, metadata, canonical, social previews, semantic HTML | `src/app/layout.tsx`, `src/app/repositories/[name]/page.tsx`, `src/app/opengraph-image.tsx`, `src/app/sitemap.ts`, `src/app/robots.ts` | `tests/e2e/home.spec.ts` (title, description, canonical, OG/Twitter tags), `tests/components/layout.test.tsx` |
-| R12 | WCAG 2.2 AA target | Semantic landmarks, focus rings, `prefers-reduced-motion`, labelled controls | axe sweep of home (light + dark), detail, 404 and error states + keyboard-only flows in `tests/e2e/accessibility.spec.ts` (18 tests); ADR-0008 |
+| R12 | WCAG 2.2 AA target | Semantic landmarks, focus rings, `prefers-reduced-motion`, labelled controls | axe sweep of home (light + dark), filtered, zero-results, detail, 404, error, empty-account and rate-limited states + keyboard-only flows in `tests/e2e/accessibility.spec.ts` (26 tests); ADR-0008 |
 | R13 | OWASP Top 10 assessment, encoding, safe URLs, CSP + headers, secrets, supply chain, safe logs | `docs/security.md`, `src/proxy.ts`, `src/lib/log.ts`, `mapper.ts` allowlist, `.github/workflows/security.yml` | `tests/e2e/api-and-security.spec.ts` (20 tests: CSP nonce, HSTS, nosniff, frame-ancestors, API contract), `npm audit` 0, boundary checker |
 | R14 | Test pyramid + a11y + keyboard + CI gates + perf vs targets | `tests/**`, `.github/workflows/ci.yml`, `scripts/perf.mjs` | §3 and §4 below |
 | R15 | Scrum artefacts + increment report | `docs/backlog.md`, `docs/sprints.md`, this report | — |
@@ -67,7 +67,7 @@ for repositories without one.
 | Boundaries | `node scripts/check-boundaries.mjs` | **pass** — 43 source files; no HTML sinks, no server imports in client code, no tracked env files, no secrets, no stray `process.env` |
 | Unit / integration / component | `npx vitest run --coverage` | **195 passed**, 16 files (node 155, components 40) |
 | Coverage | `@vitest/coverage-v8` | statements **90.24 %**, branches **83.89 %**, functions **85.88 %**, lines **92.13 %** (thresholds 85/85/80/80) |
-| E2E | `npx playwright test` (chromium + mobile-chromium) | **96 passed / 0 failed**, 6 spec files, ~1.5 min |
+| E2E | `npx playwright test` (chromium + mobile-chromium) | **104 passed / 0 failed**, 6 spec files, ~1.5 min |
 | Accessibility | in-suite axe on 4 routes + keyboard flows | 0 violations at `wcag2a/aa/21aa/22aa` |
 | Build | `npx next build` | **success** — 9 routes, proxy compiled, no type errors |
 | Dependency audit | `npm audit --audit-level=high` | **0 vulnerabilities** |
@@ -82,11 +82,11 @@ Test inventory (16 Vitest files, 195 tests):
 | Integration | `client` (21), `inventory` (16), `cache` (9) = 46 |
 | Component | `layout` (11), `repo-card` (8), `repo-filters` (7), `theme-toggle` (5), `states` (9) = 40 |
 
-E2E (96 tests, every spec runs on `chromium` and `mobile-chromium`):
+E2E (104 tests, every spec runs on `chromium` and `mobile-chromium`):
 
 | Spec | Tests | Covers |
 | --- | --- | --- |
-| `accessibility.spec.ts` | 18 | axe (wcag2a/2aa/21a/21aa/22aa) on home light+dark, detail, 404, error state; keyboard-only navigation; focus visibility; skip link; live-region announcements |
+| `accessibility.spec.ts` | 26 | axe (wcag2a/2aa/21a/21aa/22aa) on home light+dark, filtered, zero-results, detail, 404, error, empty-account and rate-limited states; keyboard-only navigation; focus visibility; skip link; live-region announcements |
 | `api-and-security.spec.ts` | 20 | security headers, CSP nonce, API JSON contract, health endpoint, metadata/canonical |
 | `filters.spec.ts` | 20 | search, language/topic/sort, URL round-trip, shareable links, empty state |
 | `home.spec.ts` | 16 | hero content, live stats, highlights, repository discovery, detail navigation, metadata/canonical |
@@ -173,7 +173,7 @@ No security claim here rests on "there is no login".
 | O7 | Risk R4 | Unauthenticated 60 req/h can be exhausted by a cold-instance traffic spike | Medium | Provide `GITHUB_TOKEN` in production, or raise TTL to 1800 s |
 | O8 | Gap | No `vercel.json`, no preview/production env separation beyond Vercel's own | Low | Vercel UI configuration only |
 | O9 | Debt | Repository README content is intentionally not rendered (ADR-0010) | Low | Revisit with sanitised Markdown if desired |
-| O10 | Gap | `a11y` verified on 4 routes; filtered/empty states covered by component tests, not axe | Low | Extend axe sweep to query-string variants |
+| ~~O10~~ | ~~Gap~~ | **Closed** — axe now also covers filtered results, zero-result, empty-account and rate-limited states (26 a11y tests) | — | — |
 
 ---
 

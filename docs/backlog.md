@@ -78,7 +78,7 @@ webhook is deferred until the core product is provably working.
 | P5–P7 | **Done** | `tests/unit/{pagination,mapper,query}.test.ts`, `tests/integration/{client,cache,inventory}.test.ts` |
 | P8–P12 | **Done** | Screens in `docs/screenshots/`, `tests/components/**`, `tests/e2e/{home,filters,theme}.spec.ts` |
 | P13–P15 | **Done** | `tests/components/states.test.tsx`, `tests/e2e/{resilience,api-and-security}.spec.ts`, metadata assertions |
-| P16–P19 | **Done, with two caveats** | 195 Vitest + 96 Playwright tests green; workflows authored + YAML-validated but **not run on a GitHub runner**; docs complete |
+| P16–P19 | **Done, with two caveats** | 195 Vitest + 104 Playwright tests green; workflows authored + YAML-validated but **not run on a GitHub runner**; docs complete |
 | P20 | **Not started** (deferred by design) | Token + webhook not needed for the 15-minute freshness target |
 | P21 | **Partially done** | Dockerfile published in `docs/deployment.md`; CDN cache tuning not attempted |
 | P22 | **Won't do** | ADR-0010 |

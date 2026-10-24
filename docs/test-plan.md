@@ -33,7 +33,7 @@ Nothing in this plan relies exclusively on the live API.
 | FR-11 optional links | `tests/components/hero.test.tsx` — nothing rendered when unset, rendered when configured |
 | FR-12 JSON API | E2E + unit: valid query, `400` on bad `sort`, `400` on over-long `q` |
 | FR-13 health | E2E `/api/health` shape and `no-store` |
-| NFR-2 accessibility | axe on `/`, `/repositories/[name]`, 404, light+dark+mobile; keyboard-only path test (skip link → nav → filters → card link) |
+| NFR-2 accessibility | axe on `/` (light+dark), `/` filtered, `/` zero-results, empty account, rate-limited, `/repositories/[name]`, 404 and the error state, on desktop and mobile viewports; keyboard-only path test (skip link → nav → filters → card link) |
 | NFR-3 security | E2E header assertions (CSP nonce present, HSTS, nosniff, frame-ancestors), unit tests for URL allowlist, `check-boundaries` for `dangerouslySetInnerHTML` |
 | NFR-4 reliability | integration tests for retry/backoff/no-retry-after-reset, single-flight, stale fallback |
 | NFR-1 performance | `npm run perf`; results recorded in `docs/delivery-report.md` |

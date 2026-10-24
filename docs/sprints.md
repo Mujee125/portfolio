@@ -99,7 +99,7 @@ Unit + integration + component suites grew to 178 tests, all green. First E2E ru
 ### Tests actually run (final state)
 See `docs/delivery-report.md` for the verbatim results. Summary: lint/typecheck/boundaries green,
 195 unit+integration+component tests green, coverage above thresholds, production build green,
-96 Playwright tests green on desktop + mobile viewports, live smoke green, `npm audit` clean,
+104 Playwright tests green on desktop + mobile viewports, live smoke green, `npm audit` clean,
 Core Web Vitals inside targets under a throttled mobile profile.
 
 ### Defects found

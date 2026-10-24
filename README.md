@@ -11,7 +11,7 @@ picks up new ones automatically — no manual project list, no code change, no r
   desktop and mobile sizes.
 - **Secure by construction.** Nonce-based CSP, no HTML injection primitives, allowlisted outbound
   URLs, server-only credentials, hardened headers.
-- **Verified.** 195 unit/integration/component tests, 96 end-to-end tests across two viewports,
+- **Verified.** 195 unit/integration/component tests, 104 end-to-end tests across two viewports,
   measured Core Web Vitals, CI gates.
 
 > **Note on identity:** nothing about the owner is hard-coded or invented. Name, headline, bio,
