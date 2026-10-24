@@ -105,6 +105,18 @@ Rate-limit budget with defaults: 4 refreshes/hour × ≤10 pages = **≤40 reque
 | `npm run perf` | Lab Core Web Vitals measurement against a running production build |
 | `npm run test:all` | lint → typecheck → coverage → build → e2e |
 
+First run on a fresh machine:
+
+```bash
+npm ci
+npx playwright install --with-deps chromium   # browser binaries, ~700 MB
+```
+
+Playwright installs into `~/.cache/ms-playwright` by default — deliberately **outside** the project.
+Never point `PLAYWRIGHT_BROWSERS_PATH` inside the repository (or into a synced/limited workspace):
+the binaries are regenerable build artefacts, they are not source, and a single install is several
+hundred megabytes. Nothing in the repository depends on them existing.
+
 ## Architecture (short version)
 
 ```
