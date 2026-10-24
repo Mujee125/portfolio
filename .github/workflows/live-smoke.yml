@@ -1,0 +1,29 @@
+name: Live GitHub smoke test
+
+on:
+  schedule:
+    - cron: '0 6 * * *' # daily: is the upstream contract still what we depend on?
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+
+      # Deliberately unauthenticated: it also proves the default configuration works.
+      # Set the repository variable GITHUB_USERNAME, or it falls back to a public account.
+      - name: Run live smoke test
+        run: npm run test:live
+        env:
+          GITHUB_USERNAME: ${{ vars.GITHUB_USERNAME || 'octocat' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

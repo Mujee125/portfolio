@@ -1,0 +1,17 @@
+import { chromium } from '@playwright/test';
+const browser = await chromium.launch();
+const page = await browser.newPage();
+page.on('pageerror', (e) => console.log('PAGEERROR', e.message));
+page.on('console', (m) => { if (m.type() !== 'log') console.log('CONSOLE', m.type(), m.text().slice(0, 200)); });
+await page.goto('http://127.0.0.1:3100/', { waitUntil: 'load' });
+await page.getByRole('main').waitFor();
+await page.waitForTimeout(1200);
+const search = page.getByLabel('Search', { exact: true });
+await search.focus();
+console.log('active id:', await page.evaluate(() => document.activeElement?.id));
+await page.keyboard.type('rust');
+console.log('value after type:', await search.inputValue());
+await search.fill('rust');
+await page.waitForTimeout(1000);
+console.log('value after fill:', await search.inputValue(), 'url:', page.url());
+await browser.close();
