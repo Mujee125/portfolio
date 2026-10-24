@@ -52,4 +52,13 @@ export async function gotoSettled(page: Page, path = '/'): Promise<void> {
   // `ClientReady` sets this once the interactive islands are hydrated, so tests that
   // type or click can never race hydration.
   await page.locator('html[data-hydrated="true"]').waitFor({ state: 'attached' });
+  // Coarse marker is necessary but not sufficient: the filter island is a separate client
+  // chunk and can hydrate later, discarding keystrokes typed in between. When the form is
+  // on the page, wait for its own readiness marker before tests type into it.
+  const filterForm = page.locator('form[aria-label="Filter repositories"]');
+  if ((await filterForm.count()) > 0) {
+    await page
+      .locator('form[aria-label="Filter repositories"][data-hydrated="true"]')
+      .waitFor({ state: 'attached' });
+  }
 }

@@ -78,6 +78,7 @@ src/
 | HTTP caching | HTML responses are not CDN-cached by default (content depends on query params and staleness); origin work is a cache lookup. Repository JSON endpoint sets `Cache-Control: public, s-maxage=300, stale-while-revalidate=600`. Immutable static assets get long-lived caching from Next.js. |
 | Invalidation | Time-based only (no webhooks — a webhook needs a secret and a public endpoint, and is unnecessary at 15-min freshness). |
 | Cold starts | Each instance warms independently; page cap + single-flight + stale fallback bound the cost. |
+| Process-wide state | Held on `globalThis` under a versioned symbol, never in module scope: Next.js emits several server bundles per process and module scope is per bundle, which would duplicate the cache (proven by observation; see ADR-0012). |
 
 ## 5. Failure modes
 

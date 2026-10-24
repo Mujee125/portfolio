@@ -236,13 +236,34 @@ function collect(items: readonly GitHubRepository[], target: GitHubRepository[],
   }
 }
 
-let defaultService: InventoryService | null = null;
+/**
+ * The service is stored on `globalThis`, not in a module-level variable.
+ *
+ * Next.js compiles the app into several server bundles (pages, route handlers, proxy).
+ * Each bundle can get its own copy of a module's top-level state, which would mean one
+ * cache per bundle: duplicated upstream requests, a `/api/health` that describes a
+ * different snapshot than the page it is monitoring, and a rate-limit budget spent twice.
+ * `globalThis` is the one place all bundles in a server process share.
+ */
+const SERVICE_KEY = Symbol.for('github-portfolio.inventory-service.v1');
+
+type ServiceStore = typeof globalThis & {
+  [SERVICE_KEY]?: InventoryService;
+};
 
 export function getInventoryService(): InventoryService {
-  if (defaultService === null) {
-    defaultService = createInventoryService({ config: getConfig() });
-  }
-  return defaultService;
+  const store = globalThis as ServiceStore;
+  const existing = store[SERVICE_KEY];
+  if (existing !== undefined) return existing;
+  const created = createInventoryService({ config: getConfig() });
+  store[SERVICE_KEY] = created;
+  return created;
+}
+
+/** Test-only: drops the shared instance so a test can observe cold-start behaviour. */
+export function resetInventoryService(): void {
+  const store = globalThis as ServiceStore;
+  delete store[SERVICE_KEY];
 }
 
 /** Convenience wrapper used by server components and route handlers. */
@@ -258,8 +279,3 @@ export function getRepositoryInventory(): Promise<InventoryResult> {
 export const getRepositoryInventoryForRequest = cache((): Promise<InventoryResult> => {
   return getRepositoryInventory();
 });
-
-/** Test/ops helper: drop the process-wide service (and its cache). */
-export function resetInventoryService(): void {
-  defaultService = null;
-}

@@ -39,43 +39,90 @@ export function RepoFilters({
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [search, setSearch] = useState(query.q);
-  const lastPushed = useRef(query.q);
+  // One draft for the whole form: typing and selecting merge into a single pending state,
+  // so a change made while a navigation is in flight can never be lost.
+  const [draft, setDraft] = useState<RepositoryQuery>(query);
+  // Mirror of `draft` so an event handler always merges into the latest value even when
+  // two changes happen in the same tick (React state alone would hand back a stale copy).
+  const draftRef = useRef<RepositoryQuery>(query);
+  const lastPushed = useRef(toSearchString(query));
+  const formRef = useRef<HTMLFormElement>(null);
 
-  function apply(next: Partial<RepositoryQuery>) {
-    const merged: RepositoryQuery = { ...query, ...next };
-    const searchString = toSearchString(merged);
+  /*
+   * Advertise "this island is interactive" to tests (and to anyone debugging hydration).
+   *
+   * The page-level `html[data-hydrated]` marker is not enough: this form ships in its own
+   * client chunk, so it can hydrate *after* the root effects have run. React restores the
+   * controlled input value during hydration, which silently discards keystrokes typed in
+   * that window. This attribute is set by an effect inside this component, so it appears
+   * only once the handlers and state are attached.
+   */
+  useEffect(() => {
+    const form = formRef.current;
+    if (form === null) return;
+    form.dataset.hydrated = 'true';
+    return () => {
+      delete form.dataset.hydrated;
+    };
+  }, []);
+
+  function updateDraft(next: RepositoryQuery) {
+    draftRef.current = next;
+    setDraft(next);
+  }
+
+  function push(value: RepositoryQuery) {
+    const searchString = toSearchString(value);
+    if (searchString === lastPushed.current) return;
+    lastPushed.current = searchString;
     startTransition(() => {
       router.replace(searchString === '' ? '/' : `/${searchString}`, { scroll: false });
     });
   }
 
-  // Debounced search: 350 ms is long enough to avoid a request per keystroke and
-  // short enough to feel immediate. The value is only pushed when it actually changed.
+  // Selects and the sort order are deliberate, single actions: apply them immediately.
+  // They merge into the latest draft, so a search typed a moment earlier is preserved.
+  function applyNow(next: Partial<RepositoryQuery>) {
+    const merged: RepositoryQuery = { ...draftRef.current, ...next };
+    updateDraft(merged);
+    push(merged);
+  }
+
+  // Adopt server state when it changed for a reason other than our own navigation
+  // (back/forward, "Clear filters", a shared link). `lastPushed` records the URL we
+  // asked for, so an echo of our own navigation never overwrites what the user typed.
   useEffect(() => {
-    if (search === lastPushed.current) return;
-    const timer = setTimeout(() => {
-      lastPushed.current = search;
-      apply({ q: search });
-    }, 350);
+    const incoming = toSearchString(query);
+    if (incoming === lastPushed.current) return;
+    lastPushed.current = incoming;
+    updateDraft(query);
+  }, [query]);
+
+  // Single debounced navigation for every control. 350 ms is long enough to avoid a
+  // request per keystroke and short enough to feel immediate; because all changes share
+  // one timer, rapid edits coalesce into one navigation instead of racing each other.
+  useEffect(() => {
+    if (toSearchString(draft) === lastPushed.current) return;
+    const timer = setTimeout(() => push(draft), 350);
     return () => clearTimeout(timer);
-    // `apply` closes over the current query, which is intentional: each navigation
-    // is computed from the latest server-rendered state.
+    // `push` is recreated per render but only reads refs; re-running on every render
+    // would reset the timer on unrelated renders.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
+  }, [draft]);
 
   return (
     <div className="rounded-xl border border-line bg-surface p-4 sm:p-5">
       <form
+        ref={formRef}
         role="search"
         action="/"
         method="get"
         aria-label="Filter repositories"
         className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto]"
         onSubmit={(event) => {
+          // With JavaScript the debounced navigation already covers this; without it the
+          // browser performs the native GET submission, so the form keeps working.
           event.preventDefault();
-          lastPushed.current = search;
-          apply({ q: search });
         }}
       >
         <div className="sm:col-span-2 lg:col-span-1">
@@ -92,10 +139,10 @@ export function RepoFilters({
               id="repo-search"
               name="q"
               type="search"
-              value={search}
+              value={draft.q}
               maxLength={100}
               placeholder="Name, description or topic"
-              onChange={(event) => setSearch(event.target.value)}
+              onChange={(event) => updateDraft({ ...draftRef.current, q: event.target.value })}
               className={`${fieldClass} pl-9`}
             />
           </div>
@@ -108,8 +155,8 @@ export function RepoFilters({
           <select
             id="repo-language"
             name="language"
-            defaultValue={query.language ?? ''}
-            onChange={(event) => apply({ language: event.target.value === '' ? null : event.target.value })}
+            value={draft.language ?? ''}
+            onChange={(event) => applyNow({ language: event.target.value === '' ? null : event.target.value })}
             className={fieldClass}
           >
             <option value="">All languages</option>
@@ -128,8 +175,8 @@ export function RepoFilters({
           <select
             id="repo-topic"
             name="topic"
-            defaultValue={query.topic ?? ''}
-            onChange={(event) => apply({ topic: event.target.value === '' ? null : event.target.value })}
+            value={draft.topic ?? ''}
+            onChange={(event) => applyNow({ topic: event.target.value === '' ? null : event.target.value })}
             className={fieldClass}
           >
             <option value="">All topics</option>
@@ -148,8 +195,8 @@ export function RepoFilters({
           <select
             id="repo-sort"
             name="sort"
-            defaultValue={query.sort}
-            onChange={(event) => apply({ sort: event.target.value as SortOption })}
+            value={draft.sort}
+            onChange={(event) => applyNow({ sort: event.target.value as SortOption })}
             className={fieldClass}
           >
             {SORT_OPTIONS.map((option) => (

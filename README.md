@@ -11,7 +11,7 @@ picks up new ones automatically — no manual project list, no code change, no r
   desktop and mobile sizes.
 - **Secure by construction.** Nonce-based CSP, no HTML injection primitives, allowlisted outbound
   URLs, server-only credentials, hardened headers.
-- **Verified.** 191 unit/integration/component tests, 96 end-to-end tests across two viewports,
+- **Verified.** 195 unit/integration/component tests, 96 end-to-end tests across two viewports,
   measured Core Web Vitals, CI gates.
 
 > **Note on identity:** nothing about the owner is hard-coded or invented. Name, headline, bio,
@@ -131,6 +131,22 @@ Browser ──HTTP──▶ Next.js 16 app (Node runtime)
 Full detail: [`docs/architecture.md`](docs/architecture.md) · decisions:
 [`docs/decisions/`](docs/decisions/) · API contract: [`docs/api-contract.md`](docs/api-contract.md).
 
+### Documentation map
+
+| Document | Contents |
+| --- | --- |
+| [`docs/research.md`](docs/research.md) | Verified upstream facts, version matrix, alternatives considered |
+| [`docs/requirements.md`](docs/requirements.md) | Functional/non-functional requirements with acceptance criteria |
+| [`docs/architecture.md`](docs/architecture.md) | Modules, data flow, caching, failure handling |
+| [`docs/api-contract.md`](docs/api-contract.md) | GitHub endpoints consumed + this site's JSON contract |
+| [`docs/security.md`](docs/security.md) | OWASP Top 10:2025 assessment and residual-risk register |
+| [`docs/test-plan.md`](docs/test-plan.md) | Test strategy and requirement-to-test matrix |
+| [`docs/backlog.md`](docs/backlog.md) | Prioritised product backlog, estimates, Definition of Done |
+| [`docs/sprints.md`](docs/sprints.md) | Increment-by-increment delivery record |
+| [`docs/deployment.md`](docs/deployment.md) | Hosting evaluation, Vercel/Docker steps, CI/CD, rollback |
+| [`docs/runbook.md`](docs/runbook.md) | Signals, alerts and operational playbooks |
+| [`docs/delivery-report.md`](docs/delivery-report.md) | Final report: traceability, measured results, open issues |
+
 ## Routes
 
 | Route | Purpose |
@@ -150,7 +166,7 @@ Invalid values fall back to defaults rather than erroring.
 tests/unit/          mapping, policy, filtering/sorting, URL validation, config, formatters
 tests/integration/   pagination, 304, retries/backoff, timeouts, rate limits, stale-while-error, single-flight
 tests/components/    cards, states, filters, theme toggle, layout (React Testing Library + jsdom)
-tests/e2e/           navigation, discovery, filters, themes, a11y (axe), headers, API, resilience
+tests/e2e/           home/discovery, filters, themes, resilience, a11y (axe), API + security headers
 tests/mocks/         dependency-free GitHub mock with switchable scenarios
 ```
 
