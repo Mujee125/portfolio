@@ -8,6 +8,14 @@ import { SiteHeader } from '@/components/layout/SiteHeader';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import './globals.css';
 
+/**
+ * Force dynamic rendering for the entire application.
+ * This app fetches data from GitHub API at runtime and requires
+ * environment variables for configuration, so static generation
+ * is not appropriate.
+ */
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata(): Promise<Metadata> {
   const config = getConfig();
   const title = `${config.profile.displayName} · ${config.site.name}`;
