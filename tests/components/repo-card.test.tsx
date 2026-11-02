@@ -100,20 +100,21 @@ describe('RepoCard', () => {
     await user.tab();
     expect(screen.getByRole('link', { name: 'alpha' })).toHaveFocus();
     await user.tab();
-    const toggle = screen.getByRole('button', { name: 'Show all 3 technologies' });
+    const toggle = screen.getByRole('button', { name: 'Show all 3 technologies:TypeScript+2' });
     expect(toggle).toHaveFocus();
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
 
     await user.keyboard('{Enter}');
     expect(toggle).toHaveFocus();
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
-    expect(toggle).toHaveAccessibleName('Show fewer technologies');
+    expect(toggle).toHaveAccessibleName('Show fewer technologies:Show less');
+    expect(toggle).toHaveTextContent('Show less');
     expect(screen.getAllByText('Language')).toHaveLength(2);
     expect(screen.getAllByText('Topic')).toHaveLength(4);
 
     await user.keyboard('{Enter}');
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
-    expect(toggle).toHaveAccessibleName('Show all 3 technologies');
+    expect(toggle).toHaveAccessibleName('Show all 3 technologies:TypeScript+2');
 
     await user.tab();
     expect(screen.getByRole('link', { name: /Repository/ })).toHaveFocus();

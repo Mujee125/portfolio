@@ -144,7 +144,7 @@ export function ProjectCarousel({ repos, nowMs }: ProjectCarouselProps) {
                     href={currentRepo.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent/90"
+                    className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-ink transition-colors hover:bg-accent/90"
                   >
                     <GitHubIcon width={16} height={16} />
                     View on GitHub
@@ -211,7 +211,7 @@ export function ProjectCarousel({ repos, nowMs }: ProjectCarouselProps) {
               href={currentRepo.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded bg-accent px-3 py-1.5 text-xs font-medium text-white"
+              className="inline-flex items-center gap-1.5 rounded bg-accent px-3 py-1.5 text-xs font-medium text-accent-ink"
             >
               <GitHubIcon width={12} height={12} />
               View
@@ -239,11 +239,17 @@ export function ProjectCarousel({ repos, nowMs }: ProjectCarouselProps) {
                     setDirection(index > currentIndex ? 1 : -1);
                     setCurrentIndex(index);
                   }}
-                  className={`h-2 w-2 rounded-full transition-all ${
-                    index === currentIndex ? 'w-8 bg-accent' : 'bg-surface-2'
-                  }`}
+                  className="flex size-6 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                   aria-label={`Go to project ${index + 1}`}
-                />
+                  aria-current={index === currentIndex ? 'true' : undefined}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`h-2 rounded-full transition-all ${
+                      index === currentIndex ? 'w-8 bg-accent' : 'w-2 bg-surface-2'
+                    }`}
+                  />
+                </button>
               ))}
             </div>
             <button
@@ -260,7 +266,7 @@ export function ProjectCarousel({ repos, nowMs }: ProjectCarouselProps) {
       </div>
 
       {/* Desktop dots indicator */}
-      <div className="hidden md:block mt-8 flex justify-center gap-2">
+      <div className="hidden md:flex mt-8 justify-center gap-2">
         {repos.map((_, index) => (
           <button
             key={index}
@@ -268,11 +274,17 @@ export function ProjectCarousel({ repos, nowMs }: ProjectCarouselProps) {
               setDirection(index > currentIndex ? 1 : -1);
               setCurrentIndex(index);
             }}
-            className={`h-2 w-2 rounded-full transition-all ${
-              index === currentIndex ? 'w-8 bg-accent' : 'bg-surface-2'
-            }`}
+            className="flex size-6 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             aria-label={`Go to project ${index + 1}`}
-          />
+            aria-current={index === currentIndex ? 'true' : undefined}
+          >
+            <span
+              aria-hidden="true"
+              className={`h-2 rounded-full transition-all ${
+                index === currentIndex ? 'w-8 bg-accent' : 'w-2 bg-surface-2'
+              }`}
+            />
+          </button>
         ))}
       </div>
     </div>

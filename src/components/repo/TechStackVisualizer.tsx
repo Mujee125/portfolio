@@ -76,15 +76,18 @@ export function TechStackVisualizer({ repo }: TechStackVisualizerProps) {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           aria-expanded={isExpanded}
-          aria-label={isExpanded ? 'Show fewer technologies' : `Show all ${techItems.length} technologies`}
           className={isExpanded
             ? 'text-xs text-ink-muted hover:text-accent'
             : 'flex items-center gap-2 rounded-full border border-line bg-surface-2 px-3 py-1.5 text-xs font-medium text-ink-muted transition-colors hover:border-accent hover:text-accent'}
         >
           {isExpanded ? (
-            'Show less'
+            <>
+              <span className="sr-only">Show fewer technologies: </span>
+              Show less
+            </>
           ) : (
             <>
+              <span className="sr-only">Show all {techItems.length} technologies: </span>
               <span
                 className="size-2 rounded-full"
                 style={{ backgroundColor: techItems[0]?.color }}
