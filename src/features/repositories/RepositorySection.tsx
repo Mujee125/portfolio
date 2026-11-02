@@ -1,9 +1,10 @@
 import { getConfig } from '@/lib/config';
 import { getRepositoryInventoryForRequest } from '@/lib/github';
-import { runQuery, type RepositoryQuery } from '@/lib/repos/query';
+import { runQuery, selectFeatured, type RepositoryQuery } from '@/lib/repos/query';
 import { RepoFilters } from '@/components/repo/RepoFilters';
 import { RepoGrid } from '@/components/repo/RepoGrid';
 import { EmptyState, ErrorState, IncompleteNotice, NoMatchesState, StaleNotice } from '@/components/repo/states';
+import { ProjectCarousel } from '@/components/repo/ProjectCarousel';
 
 /**
  * The searchable repository index.
@@ -26,6 +27,9 @@ export async function RepositorySection({ query }: { query: RepositoryQuery }) {
   // with the snapshot age shown in the panel.
   const nowMs = inventory.generatedAt.getTime();
   const incomplete = inventory.truncated || inventory.skippedItems > 0;
+
+  // Get featured repos for carousel
+  const featured = selectFeatured(inventory.repos, config.repos);
 
   if (outcome.totalEligible === 0) {
     return (
@@ -57,6 +61,10 @@ export async function RepositorySection({ query }: { query: RepositoryQuery }) {
       />
 
       <div className="mt-6">
+        {featured.length > 0 && !outcome.hasActiveFilters && (
+          <ProjectCarousel repos={featured} nowMs={nowMs} />
+        )}
+
         {outcome.matches.length === 0 ? (
           <NoMatchesState />
         ) : (

@@ -41,7 +41,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           id="work-heading"
           eyebrow="Repository index"
           title="Every eligible public repository"
-          description="Fetched from the GitHub REST API, filtered and sorted on the server. Filters live in the URL, so any view can be bookmarked or shared."
+          description="Explore featured projects with our interactive 3D carousel. Fetched from the GitHub REST API, filtered and sorted on the server. Filters live in the URL, so any view can be bookmarked or shared."
         />
 
         <div className="mt-6">

@@ -1,8 +1,9 @@
 import Link from 'next/link';
-import { ArchiveIcon, ForkIcon, GitHubIcon, StarIcon } from '@/components/ui/icons';
+import { ArchiveIcon, GitHubIcon } from '@/components/ui/icons';
 import { Badge } from '@/components/layout/Badge';
-import { formatCompact, formatDate, languageColour, relativeTime } from '@/lib/format';
+import { formatDate, relativeTime } from '@/lib/format';
 import type { Repository } from '@/lib/github/types';
+import { TechStackVisualizer } from './TechStackVisualizer';
 
 /**
  * Presentational only: every string is rendered as a text node, and the two links
@@ -56,30 +57,7 @@ export function RepoCard({ repo, nowMs }: { repo: Repository; nowMs: number }) {
 
       <div className="mt-auto pt-5">
         <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5 text-xs text-ink-muted">
-          {repo.language ? (
-            <span className="inline-flex items-center gap-1.5">
-              <span
-                aria-hidden="true"
-                className="size-2.5 rounded-full ring-1 ring-black/10"
-                style={{ backgroundColor: languageColour(repo.language) }}
-              />
-              {repo.language}
-            </span>
-          ) : null}
-          <span className="inline-flex items-center gap-1">
-            <StarIcon width={13} height={13} />
-            <span className="tabular-nums" title={`${repo.stars} stars`}>
-              {formatCompact(repo.stars)}
-            </span>
-            <span className="sr-only">stars</span>
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <ForkIcon width={13} height={13} />
-            <span className="tabular-nums" title={`${repo.forks} forks`}>
-              {formatCompact(repo.forks)}
-            </span>
-            <span className="sr-only">forks</span>
-          </span>
+          <TechStackVisualizer repo={repo} />
           {updated ? (
             <span className="inline-flex items-center gap-1">
               <span className="sr-only">Last push </span>

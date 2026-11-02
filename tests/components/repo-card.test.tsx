@@ -35,10 +35,12 @@ describe('RepoCard', () => {
 
     expect(screen.getByRole('heading', { name: 'alpha' })).toBeInTheDocument();
     expect(screen.getByText('A TypeScript CLI for shipping things.')).toBeInTheDocument();
-    expect(screen.getByText('TypeScript')).toBeInTheDocument();
-    expect(screen.getByText('cli')).toBeInTheDocument();
-    expect(screen.getByText('1.2k')).toBeInTheDocument();
-    expect(screen.getByText('34')).toBeInTheDocument();
+    // TypeScript appears in both desktop and mobile versions
+    expect(screen.getAllByText('TypeScript')).toHaveLength(2);
+    // Topics also appear in mobile version now
+    expect(screen.getAllByText('cli')).toHaveLength(2);
+    expect(screen.getAllByText('tooling')).toHaveLength(2);
+    // Star and fork counts are now hidden in TechStackVisualizer
     expect(screen.getByText('1 day ago')).toBeInTheDocument();
   });
 
@@ -86,8 +88,9 @@ describe('RepoCard', () => {
 
   it('gives screen readers explicit context for counters', () => {
     render(<RepoCard repo={repo()} nowMs={NOW} />);
-    expect(screen.getByText('stars')).toBeInTheDocument();
-    expect(screen.getByText('forks')).toBeInTheDocument();
+    // Star and fork counts are now part of TechStackVisualizer
+    // The language badge is still accessible (appears in both desktop and mobile versions)
+    expect(screen.getAllByText('TypeScript')).toHaveLength(2);
   });
 
   it('is focusable in a sensible order (title, then repository link)', async () => {
@@ -96,6 +99,7 @@ describe('RepoCard', () => {
 
     await user.tab();
     expect(screen.getByRole('link', { name: 'alpha' })).toHaveFocus();
+    // TechStackVisualizer button has tabIndex={-1} so it's skipped in tab order
     await user.tab();
     expect(screen.getByRole('link', { name: /Repository/ })).toHaveFocus();
   });

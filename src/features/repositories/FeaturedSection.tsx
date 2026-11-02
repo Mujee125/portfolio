@@ -1,7 +1,7 @@
 import { getConfig } from '@/lib/config';
 import { getRepositoryInventoryForRequest } from '@/lib/github';
 import { selectFeatured } from '@/lib/repos/query';
-import { RepoGrid } from '@/components/repo/RepoGrid';
+import { ProjectCarousel } from '@/components/repo/ProjectCarousel';
 
 /**
  * A short, editorially-curated strip above the full index.
@@ -36,7 +36,7 @@ export async function FeaturedSection() {
         </p>
       </div>
       <div className="mt-6">
-        <RepoGrid repos={featured} nowMs={inventory.generatedAt.getTime()} label="Featured repositories" />
+        <ProjectCarousel repos={featured} nowMs={inventory.generatedAt.getTime()} />
       </div>
     </section>
   );

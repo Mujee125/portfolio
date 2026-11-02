@@ -110,6 +110,17 @@ const envSchema = z.object({
   GITHUB_TOKEN: optionalString,
   GITHUB_API_BASE_URL: optionalString.default(GITHUB_API_BASE_DEFAULT),
   ALLOW_NON_DEFAULT_GITHUB_API: booleanish.default(false),
+
+  RATE_LIMIT_ENABLED: booleanish.default(true),
+  RATE_LIMIT_MAX_REQUESTS: integerFromEnv(1, 1000, 100),
+  RATE_LIMIT_WINDOW_SECONDS: integerFromEnv(1, 3600, 60),
+  RATE_LIMIT_BYPASS_TOKEN: optionalString,
+
+  GITHUB_MAX_RESPONSE_SIZE_MB: integerFromEnv(1, 100, 10),
+
+  SITEMAP_MAX_URLS: integerFromEnv(100, 50000, 1000),
+
+  GITHUB_MAX_REPOSITORIES: integerFromEnv(100, 10000, 2000),
 });
 
 export type RepositoryPolicy = {
@@ -154,6 +165,17 @@ export type AppConfig = {
     readonly token: string | null;
     readonly requestTimeoutMs: number;
     readonly maxRetries: number;
+    readonly maxResponseSizeBytes: number;
+    readonly maxRepositories: number;
+  };
+  readonly rateLimit: {
+    readonly enabled: boolean;
+    readonly maxRequests: number;
+    readonly windowSeconds: number;
+    readonly bypassToken: string | null;
+  };
+  readonly sitemap: {
+    readonly maxUrls: number;
   };
 };
 
@@ -217,6 +239,17 @@ export function parseConfig(env: Record<string, string | undefined>): AppConfig 
       token: value.GITHUB_TOKEN ?? null,
       requestTimeoutMs: value.GITHUB_REQUEST_TIMEOUT_MS,
       maxRetries: value.GITHUB_MAX_RETRIES,
+      maxResponseSizeBytes: value.GITHUB_MAX_RESPONSE_SIZE_MB * 1024 * 1024,
+      maxRepositories: value.GITHUB_MAX_REPOSITORIES,
+    },
+    rateLimit: {
+      enabled: value.RATE_LIMIT_ENABLED,
+      maxRequests: value.RATE_LIMIT_MAX_REQUESTS,
+      windowSeconds: value.RATE_LIMIT_WINDOW_SECONDS,
+      bypassToken: value.RATE_LIMIT_BYPASS_TOKEN ?? null,
+    },
+    sitemap: {
+      maxUrls: value.SITEMAP_MAX_URLS,
     },
   };
 }

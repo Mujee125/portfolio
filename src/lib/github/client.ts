@@ -4,6 +4,60 @@ import { parseRepositoryPage, type GitHubRepository } from './schema';
 import type { RateLimitSnapshot } from './types';
 
 /**
+ * Read response body with size limit to prevent memory exhaustion.
+ */
+export async function readJsonWithSizeLimit(response: Response, maxSizeBytes: number): Promise<unknown> {
+  const contentLength = response.headers.get('content-length');
+  if (contentLength) {
+    const size = Number(contentLength);
+    if (size > maxSizeBytes) {
+      throw new GitHubError('invalid_response', {
+        status: response.status,
+        detail: `Response body exceeds maximum size of ${maxSizeBytes} bytes (Content-Length: ${size})`,
+      });
+    }
+  }
+
+  const reader = response.body?.getReader();
+  if (!reader) {
+    throw new GitHubError('invalid_response', { status: response.status, detail: 'No response body' });
+  }
+
+  let totalBytes = 0;
+  const chunks: Uint8Array[] = [];
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    totalBytes += value.length;
+    if (totalBytes > maxSizeBytes) {
+      reader.cancel();
+      throw new GitHubError('invalid_response', {
+        status: response.status,
+        detail: `Response body exceeds maximum size of ${maxSizeBytes} bytes`,
+      });
+    }
+
+    chunks.push(value);
+  }
+
+  const body = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    body.set(chunk, offset);
+    offset += chunk.length;
+  }
+
+  const text = new TextDecoder().decode(body);
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new GitHubError('invalid_response', { status: response.status, detail: 'Response body is not valid JSON' });
+  }
+}
+
+/**
  * A single-page GitHub REST client.
  *
  * Responsibilities kept deliberately small and injection-friendly so that every
@@ -33,6 +87,7 @@ export type PageRequest = {
   readonly maxRetries: number;
   readonly etag: string | null;
   readonly userAgent: string;
+  readonly maxResponseSizeBytes: number;
 };
 
 export type PageResult =
@@ -95,8 +150,9 @@ export async function fetchRepositoryPage(request: PageRequest, deps: ClientDeps
     if (response.status === 200) {
       let payload: unknown;
       try {
-        payload = await response.json();
-      } catch {
+        payload = await readJsonWithSizeLimit(response, request.maxResponseSizeBytes);
+      } catch (error) {
+        if (error instanceof GitHubError) throw error;
         throw new GitHubError('invalid_response', { status: 200, detail: 'body is not JSON' });
       }
       try {

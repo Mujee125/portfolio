@@ -11,6 +11,7 @@ const baseRequest: PageRequest = {
   maxRetries: 2,
   etag: null,
   userAgent: 'github-portfolio-test',
+  maxResponseSizeBytes: 10 * 1024 * 1024,
 };
 
 function jsonResponse(body: unknown, init: { status?: number; headers?: Record<string, string> } = {}) {

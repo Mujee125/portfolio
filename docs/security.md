@@ -80,10 +80,12 @@ breaking the feature). Two themes are scanned with axe in the same run.
 | R2 | GitHub content is trusted for *display* after validation; a hostile repository description could still be socially engineered text (phishing copy) | Low | Text is escaped; links never derive from description text; only validated `homepage`/`html_url` become links, with `rel="noopener noreferrer"` and external-link indication |
 | R3 | In-process cache means serverless instances diverge briefly; an uptime check may see a "stale" instance | Low | Bounded by TTL; the health endpoint reports per-instance truth rather than pretending to be global |
 | R4 | Rate-limit exhaustion by a traffic spike on cold instances | Medium | Page cap, single-flight, stale fallback, optional token documented; the UI degrades visibly rather than breaking |
-| R5 | No WAF/rate limiting on our own origin (static-ish rendering is cheap, but `/api/*` is unbounded) | Low | Platform-level protection available on Vercel; documented as an operational follow-up |
+| R5 | No application-level rate limiting on `/api/*` | Low | **RESOLVED**: Application-level IP-based rate limiting implemented (ADR-0013); 100 req/min per IP with bypass token for monitoring services. Platform-level protection (WAF) remains an operational follow-up. |
 | R6 | Token, if used, is a long-lived PAT | Medium | Documented migration to a GitHub App installation token (short-lived, narrow scope) as the next step; token is read-only and server-side only |
 | R7 | CI/CD workflows were authored but **not executed** in this environment (no GitHub runner) | Medium | Every command the workflows run was executed locally with the same Node version; workflow YAML is syntax-validated; this is stated explicitly rather than claimed as verified |
 | R8 | No penetration test or third-party security review was performed | — | Not claimed. The controls above are the design baseline, not a certification |
+| R9 | No response body size validation on GitHub API responses | Low | **RESOLVED**: Response body size validation implemented (ADR-0014); 10MB default limit with stream-based reading to prevent memory exhaustion. |
+| R10 | No explicit memory limit on repository loading | Low | **RESOLVED**: Repository count limit implemented (ADR-0016); 2000 repos default with truncation flag to prevent memory exhaustion on serverless instances. |
 
 ## 6. Security checklist (gates in CI)
 

@@ -24,6 +24,11 @@ export async function GET() {
         config: 'ok',
         github: failure === null ? 'ok' : failure.kind,
         cache: cacheState,
+        rateLimit: {
+          status: config.rateLimit.enabled ? 'active' : 'disabled',
+          windowSeconds: config.rateLimit.windowSeconds,
+          maxRequests: config.rateLimit.maxRequests,
+        },
       },
       snapshot:
         snapshot === null

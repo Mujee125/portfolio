@@ -1,4 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { getConfig } from '@/lib/config';
+import { createRateLimitMiddleware } from '@/lib/rate-limit';
 
 /**
  * Per-request Content-Security-Policy with a nonce (ADR-0007).
@@ -32,6 +34,14 @@ function buildCsp(nonce: string, isDev: boolean): string {
 }
 
 export default function proxy(request: NextRequest) {
+  // Apply rate limiting to API routes
+  const config = getConfig();
+  const rateLimitMiddleware = createRateLimitMiddleware(config.rateLimit);
+  const rateLimitResponse = rateLimitMiddleware(request);
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   const nonce = crypto.randomUUID().replace(/-/g, '');
   const csp = buildCsp(nonce, process.env.NODE_ENV !== 'production');
 

@@ -108,6 +108,7 @@ export function createInventoryService(options: InventoryServiceOptions): Invent
           maxRetries: config.github.maxRetries,
           etag: cachedPage?.etag ?? null,
           userAgent,
+          maxResponseSizeBytes: config.github.maxResponseSizeBytes,
         },
         options.deps,
       );
@@ -136,6 +137,18 @@ export function createInventoryService(options: InventoryServiceOptions): Invent
     }
 
     if (pageCache.size > 100) pageCache.clear();
+
+    // Apply memory limit before mapping to prevent excessive memory usage
+    const maxRepos = config.github.maxRepositories;
+    if (collected.length > maxRepos) {
+      logger('warn', 'github.repository_count_capped', {
+        maxRepositories: maxRepos,
+        actualCount: collected.length,
+        pages,
+      });
+      collected.length = maxRepos;
+      truncated = true;
+    }
 
     const mapped: Repository[] = [];
     for (const raw of collected) {
