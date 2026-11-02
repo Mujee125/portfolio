@@ -31,7 +31,6 @@ export function TechStackVisualizer({ repo }: TechStackVisualizerProps) {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {/* Desktop version with 3D effects */}
       <div className="hidden md:flex flex-wrap items-center gap-2">
         <AnimatePresence mode="wait">
           {isExpanded ? (
@@ -48,7 +47,7 @@ export function TechStackVisualizer({ repo }: TechStackVisualizerProps) {
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ delay: index * 0.05, type: 'spring', stiffness: 200 }}
                   whileHover={{ scale: 1.1, rotate: 5 }}
-                  className="relative group"
+                  className="relative"
                 >
                   <motion.div
                     className="rounded-full border border-line bg-surface-2 px-3 py-1.5 text-xs font-medium text-ink-muted transition-colors group-hover:border-accent group-hover:text-accent"
@@ -60,56 +59,43 @@ export function TechStackVisualizer({ repo }: TechStackVisualizerProps) {
                         style={{ backgroundColor: item.color }}
                       />
                       {item.name}
+                      {' '}
+                      <span className="sr-only">
+                        {item.type === 'language' ? 'Language' : 'Topic'}
+                      </span>
                     </div>
-                  </motion.div>
-                  {/* Tooltip */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    whileHover={{ opacity: 1, y: 0 }}
-                    className="absolute bottom-full left-1/2 mb-2 -translate-x-1/2 rounded bg-surface px-2 py-1 text-xs text-ink shadow-lg whitespace-nowrap"
-                  >
-                    {item.type === 'language' ? 'Language' : 'Topic'}
                   </motion.div>
                 </motion.div>
               ))}
             </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex items-center gap-2"
-            >
-              <motion.button
-                onClick={() => setIsExpanded(true)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                tabIndex={-1}
-                className="flex items-center gap-2 rounded-full border border-line bg-surface-2 px-3 py-1.5 text-xs font-medium text-ink-muted transition-colors hover:border-accent hover:text-accent"
-              >
-                <span
-                  className="size-2 rounded-full"
-                  style={{ backgroundColor: techItems[0]?.color }}
-                />
-                {techItems[0]?.name}
-                {techItems.length > 1 && (
-                  <span className="text-ink-muted">+{techItems.length - 1}</span>
-                )}
-              </motion.button>
-            </motion.div>
-          )}
+          ) : null}
         </AnimatePresence>
 
-        {isExpanded && (
-          <motion.button
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            onClick={() => setIsExpanded(false)}
-            className="text-xs text-ink-muted hover:text-accent"
-          >
-            Show less
-          </motion.button>
-        )}
+        <motion.button
+          onClick={() => setIsExpanded((expanded) => !expanded)}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          aria-expanded={isExpanded}
+          aria-label={isExpanded ? 'Show fewer technologies' : `Show all ${techItems.length} technologies`}
+          className={isExpanded
+            ? 'text-xs text-ink-muted hover:text-accent'
+            : 'flex items-center gap-2 rounded-full border border-line bg-surface-2 px-3 py-1.5 text-xs font-medium text-ink-muted transition-colors hover:border-accent hover:text-accent'}
+        >
+          {isExpanded ? (
+            'Show less'
+          ) : (
+            <>
+              <span
+                className="size-2 rounded-full"
+                style={{ backgroundColor: techItems[0]?.color }}
+              />
+              {techItems[0]?.name}
+              {techItems.length > 1 && (
+                <span className="text-ink-muted">+{techItems.length - 1}</span>
+              )}
+            </>
+          )}
+        </motion.button>
       </div>
 
       {/* Mobile simplified version */}
@@ -120,6 +106,10 @@ export function TechStackVisualizer({ repo }: TechStackVisualizerProps) {
             className="rounded-full border border-line bg-surface-2 px-2 py-0.5 font-mono text-[10.5px] text-ink-muted"
           >
             {item.name}
+            {' '}
+            <span className="sr-only">
+              {item.type === 'language' ? 'Language' : 'Topic'}
+            </span>
           </span>
         ))}
         {techItems.length > 3 && (

@@ -93,13 +93,28 @@ describe('RepoCard', () => {
     expect(screen.getAllByText('TypeScript')).toHaveLength(2);
   });
 
-  it('is focusable in a sensible order (title, then repository link)', async () => {
+  it('keeps the technology toggle keyboard accessible and announces its state', async () => {
     const user = userEvent.setup();
     render(<RepoCard repo={repo()} nowMs={NOW} />);
 
     await user.tab();
     expect(screen.getByRole('link', { name: 'alpha' })).toHaveFocus();
-    // TechStackVisualizer button has tabIndex={-1} so it's skipped in tab order
+    await user.tab();
+    const toggle = screen.getByRole('button', { name: 'Show all 3 technologies' });
+    expect(toggle).toHaveFocus();
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+
+    await user.keyboard('{Enter}');
+    expect(toggle).toHaveFocus();
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(toggle).toHaveAccessibleName('Show fewer technologies');
+    expect(screen.getAllByText('Language')).toHaveLength(2);
+    expect(screen.getAllByText('Topic')).toHaveLength(4);
+
+    await user.keyboard('{Enter}');
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(toggle).toHaveAccessibleName('Show all 3 technologies');
+
     await user.tab();
     expect(screen.getByRole('link', { name: /Repository/ })).toHaveFocus();
   });
