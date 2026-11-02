@@ -30,6 +30,9 @@
         "name": "next"
       }
     ],
+    // Note: baseUrl is deprecated in TypeScript 6.x and will be removed in 7.0
+    // This can be safely ignored until migration to new module resolution approach
+    // See: https://aka.ms/ts6 for migration information
     "baseUrl": ".",
     "paths": {
       "@/*": [
