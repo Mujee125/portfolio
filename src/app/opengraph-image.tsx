@@ -6,6 +6,13 @@ export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
 /**
+ * Rendered dynamically on each request because it depends on environment
+ * configuration (GITHUB_USERNAME). This prevents build-time failures when
+ * environment variables are not available during the build process.
+ */
+export const dynamic = 'force-dynamic';
+
+/**
  * Social preview generated from configuration, so it always states the real name
  * and handle. No binary asset to keep in sync, no third-party image service.
  * Node runtime (default) because it reads the server-side config.
